@@ -1,9 +1,9 @@
 {
   "name": "pi-camera-connect",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "Library to capture and stream Raspberry Pi camera data directly to NodeJS",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
   "author": {
     "name": "Launchcode",
     "email": "admin@lc.dev",
