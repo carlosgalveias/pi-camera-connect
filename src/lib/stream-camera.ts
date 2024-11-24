@@ -52,7 +52,7 @@ class StreamCamera extends EventEmitter {
   private childProcess?: ChildProcessWithoutNullStreams;
   private streams: Array<stream.Readable> = [];
 
-  static readonly jpegSignature = Buffer.from([0xff, 0xd8, 0xff, 0xdb, 0x00, 0x84, 0x00]);
+  static readonly jpegSignature = Buffer.from([0xff, 0xd8, 0xff, 0xe0]);
 
   constructor(options: StreamOptions = {}) {
     super();
@@ -76,7 +76,7 @@ class StreamCamera extends EventEmitter {
       try {
         const args: Array<string> = [
           /**
-           * Add the command-line arguments that are common to both `raspivid` and `raspistill`
+           * Add the command-line arguments that are common to both `rpicam-video` and `rpicam-still`
            */
           ...getSharedArgs(this.options),
 
@@ -138,12 +138,12 @@ class StreamCamera extends EventEmitter {
            *
            */
           '--timeout',
-          (0).toString(),
+          (3000).toString(),
 
           /**
            * Do not display preview overlay on screen
            */
-          '--nopreview',
+          '--nopreview','-v','0',
 
           /**
            * Output to stdout
@@ -153,16 +153,18 @@ class StreamCamera extends EventEmitter {
         ];
 
         // Spawn child process
-        this.childProcess = spawn('raspivid', args);
+        this.childProcess = spawn('rpicam-vid', args);
 
         // Listen for error event to reject promise
-        this.childProcess.once('error', () =>
-          reject(
+        this.childProcess.once('error', (error) => {
+           console.error(error);  
+	   reject(
             new Error(
-              "Could not start capture with StreamCamera. Are you running on a Raspberry Pi with 'raspivid' installed?",
-            ),
-          ),
-        );
+              "Could not start capture with StreamCamera. Are you running on a Raspberry Pi with 'rpicam-vid' installed?"
+             )
+            )
+	  }
+        )
 
         // Wait for first data event to resolve promise
         this.childProcess.stdout.once('data', () => resolve());
@@ -207,7 +209,8 @@ class StreamCamera extends EventEmitter {
         // Listen for close events
         this.childProcess.stdout.on('close', () => this.emit('close'));
       } catch (err) {
-        return reject(err);
+        console.error(err);
+	return reject(err);
       }
     });
   }

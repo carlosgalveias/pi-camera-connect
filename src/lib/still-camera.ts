@@ -37,7 +37,7 @@ export default class StillCamera {
 
   async takeImage() {
     try {
-      return await spawnPromise('raspistill', [
+      const args =  [
         /**
          * Add the command-line arguments that are common to both `raspivid` and `raspistill`
          */
@@ -53,14 +53,20 @@ export default class StillCamera {
          * Do not display preview overlay on screen
          */
         '--nopreview',
-
+	/**
+	* Do not display any verbose stuff
+	*/
+	'-v','0',
         /**
          * Output to stdout
          */
         '--output',
         '-',
-      ]);
+      ];
+      console.log(args);
+      return await spawnPromise('rpicam-still', args);
     } catch (err) {
+      console.error(err);
       if (err.code === 'ENOENT') {
         throw new Error(
           "Could not take image with StillCamera. Are you running on a Raspberry Pi with 'raspistill' installed?",
